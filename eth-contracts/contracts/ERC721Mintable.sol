@@ -180,22 +180,34 @@ contract ERC721 is Pausable, ERC165 {
     function balanceOf(address owner) public view returns (uint256) {
         // TODO return the token balance of given address
         // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
+        return _ownedTokensCount[owner].current();
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
         // TODO return the owner of the given tokenId
+        return _tokenOwner[tokenId];
     }
 
     //    @dev Approves another address to transfer the given token ID
     function approve(address to, uint256 tokenId) public {
         // TODO require the given address to not be the owner of the tokenId
+        require(to != _tokenOwner[tokenId], "address is already token owner");
+
         // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
+        require(msg.sender == _tokenOwner[tokenId] ||
+                isApprovedForAll(_tokenOwner[tokenId], msg.sender),
+                "Caller is not owner or is not approved");
+
         // TODO add 'to' address to token approvals
+        _tokenApprovals[tokenId] = to;
+
         // TODO emit Approval Event
+        emit Approval(_tokenOwner[tokenId], to, tokenId);
     }
 
     function getApproved(uint256 tokenId) public view returns (address) {
         // TODO return token approval if it exists
+         return _tokenApprovals[tokenId];
     }
 
     /**
@@ -229,7 +241,7 @@ contract ERC721 is Pausable, ERC165 {
         address to,
         uint256 tokenId
     ) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId));
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not approved or is not owner");
 
         _transferFrom(from, to, tokenId);
     }
@@ -284,8 +296,15 @@ contract ERC721 is Pausable, ERC165 {
     // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
     function _mint(address to, uint256 tokenId) internal {
         // TODO revert if given tokenId already exists or given address is invalid
+        require(to != address(0), "Address not valid");
+        require(!_exists(tokenId), "Token already exists");
+
         // TODO mint tokenId to given address & increase token count of owner
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[to].increment();
+
         // TODO emit Transfer event
+        emit Transfer(address(0x0), to, tokenId);
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
@@ -296,10 +315,21 @@ contract ERC721 is Pausable, ERC165 {
         uint256 tokenId
     ) internal {
         // TODO: require from address is the owner of the given token
+        require(from == ownerOf(tokenId), "from address must be the owner of the token");
+
         // TODO: require token is being transfered to valid address
+        require(to != address(0x0), "The address is not valid");
+
         // TODO: clear approval
+        _clearApproval(tokenId);
+
         // TODO: update token counts & transfer ownership of the token ID
+        _ownedTokensCount[to].increment();
+        _ownedTokensCount[from].decrement();
+        _tokenOwner[tokenId] = to;
+
         // TODO: emit correct event
+        emit Transfer(from, to, tokenId);
     }
 
     /**
@@ -570,7 +600,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     }
 
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId));
+        require(_exists(tokenId), "TokenId doesn't exist");
         return _tokenURIs[tokenId];
     }
 
@@ -595,16 +625,13 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //      -takes in a 'to' address, tokenId, and tokenURI as parameters
 //      -returns a true boolean upon completion of the function
 //      -calls the superclass mint and setTokenURI functions
-contract RealEstatePropertyToken is ERC721Metadata {
-    constructor()
-        public
-        ERC721Metadata(
-            "RealEstatePropertyToken",
-            "RSPT",
-            "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
-        )
-    {}
-
+contract RealEstatePropertyToken is
+    ERC721Metadata(
+        "RealEstatePropertyToken",
+        "RSPT",
+        "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/"
+    )
+{
     function mint(address to, uint256 tokenId)
         external
         onlyOwner

@@ -1,36 +1,46 @@
 
-// const SolnSquareVerifier = artifacts.require('SolnSquareVerifier')
-// const verifier = artifacts.require('Verifier')
-// const truffleAssert = require('truffle-assertions')
-// const { proof, inputs } = require('../../zokrates/code/square/proof')
+const SolnSquareVerifier = artifacts.require('SolnSquareVerifier')
+const Verifier = artifacts.require('Verifier')
+const {
+    BN,           // Big Number support
+    constants,    // Common constants, like the zero address and largest integers
+    expectEvent,  // Assertions for emitted events
+    expectRevert, // Assertions for transactions that should fail
+} = require('@openzeppelin/test-helpers');
+const { proof, inputs } = require('../../zokrates/code/square/proof')
 
 
-// contract('SolnSquareVerifierTest', accounts => {
+contract('SolnSquareVerifier Tests', async (accounts) => {
 
+    const account_one = accounts[0];
+    const account_two = accounts[1];
 
-//     describe('SolnSquareVerifier', function() {
-//         beforeEach(async function () {
-//             let verifierContract = await verifier.new({from: accounts[0]})
-//             this.contract = await SolnSquareVerifier.new(verifierContract.address, {from: accounts[0]})
-//         })
-   
-//         // Test if a new solution can be added for contract - SolnSquareVerifier
-//         it("can add a new sollution to the SolnSquareVerifier", async function() {
-//             let addedSolution = await this.contract.addSolution(99, accounts[1])
-//             // console.log(addedSolution)
-//             truffleAssert.eventEmitted(addedSolution, "SolutionAdded")
-//         })
+    describe('SolnSquareVerifier', function () {
 
-//         // Test if an ERC721 token can be minted for contract - SolnSquareVerifier
-//         it("can mint an ERC721 token for SolnSquareVerifier", async function() {
-//             truffleAssert.passes(
-//                 await this.contract.mintNewNFT(accounts[1], 33,
-//                     proof.a,
-//                     proof.b,
-//                     proof.c,
-//                     inputs
-//                     )
-//             )
-//         })
-//     })
-// })
+        beforeEach(async function () {
+            let verifier = await Verifier.new({from: account_one});
+            this.contract = await SolnSquareVerifier.new(verifier.address, {from: account_one});
+        })
+
+        // Test if a new solution can be added for contract - SolnSquareVerifier
+        it("can add a new sollution to the SolnSquareVerifier", async function () {
+            
+            let result = await this.contract.addSolution(9001, accounts[9]);
+
+            await expectEvent(result, "SolutionAdded", {
+                index: "9001",
+                addr: accounts[9]
+            });
+        })
+
+        // Test if an ERC721 token can be minted for contract - SolnSquareVerifier
+        it("can mint an ERC721 token for SolnSquareVerifier", async function () {
+            let owner = await this.contract.getOwner();
+            console.log("Accounts[0]: " + account_one + ", owner: " + owner);
+
+            let result = await this.contract.verfirySolutionAndMintNFT(account_two, proof, inputs, {from: account_one});
+
+            assert.equal(result, true, "Should be able to mint token")
+        })
+    })
+})
