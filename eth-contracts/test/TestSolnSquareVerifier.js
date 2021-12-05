@@ -40,8 +40,13 @@ contract('SolnSquareVerifier Tests', async (accounts) => {
                 "Caller should be the owner of this contract"
             );
 
-            let result = await this.contract.mintNFTAfterVerification(accounts[9], proof, inputs, {from: account_one});
-            assert.equal(result, true, "Should be able to mint token");
+            let result = await (await this.contract.mintNFTAfterVerification(accounts[9], proof, inputs, {from: account_one}));
+            await expectEvent(result, "Transfer", {
+                from: "0x0000000000000000000000000000000000000000",
+                to: accounts[9],
+                tokenId: "1"
+            });
+            
 
         })
     })
