@@ -28,6 +28,7 @@ contract Ownable {
     modifier onlyOwner() {
         require(
             msg.sender == _owner,
+            // strConcat(toAsciiString(msg.sender), " should be the owner of this contract")
             "Caller should be the owner of this contract"
         );
         _;
@@ -45,6 +46,23 @@ contract Ownable {
         address previousOwner = _owner;
         _owner = newOwner;
         emit OnwershipTransferred(previousOwner, newOwner);
+    }
+
+    function toAsciiString(address x) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint256 i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint256(uint160(x)) / (2**(8 * (19 - i)))));
+            bytes1 hi = bytes1(uint8(b) / 16);
+            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            s[2 * i] = char(hi);
+            s[2 * i + 1] = char(lo);
+        }
+        return string(s);
+    }
+
+    function char(bytes1 b) internal pure returns (bytes1 c) {
+        if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+        else return bytes1(uint8(b) + 0x57);
     }
 }
 
@@ -194,9 +212,11 @@ contract ERC721 is Pausable, ERC165 {
         require(to != _tokenOwner[tokenId], "address is already token owner");
 
         // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
-        require(msg.sender == _tokenOwner[tokenId] ||
+        require(
+            msg.sender == _tokenOwner[tokenId] ||
                 isApprovedForAll(_tokenOwner[tokenId], msg.sender),
-                "Caller is not owner or is not approved");
+            "Caller is not owner or is not approved"
+        );
 
         // TODO add 'to' address to token approvals
         _tokenApprovals[tokenId] = to;
@@ -207,7 +227,7 @@ contract ERC721 is Pausable, ERC165 {
 
     function getApproved(uint256 tokenId) public view returns (address) {
         // TODO return token approval if it exists
-         return _tokenApprovals[tokenId];
+        return _tokenApprovals[tokenId];
     }
 
     /**
@@ -241,7 +261,10 @@ contract ERC721 is Pausable, ERC165 {
         address to,
         uint256 tokenId
     ) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not approved or is not owner");
+        require(
+            _isApprovedOrOwner(msg.sender, tokenId),
+            "Caller is not approved or is not owner"
+        );
 
         _transferFrom(from, to, tokenId);
     }
@@ -315,7 +338,10 @@ contract ERC721 is Pausable, ERC165 {
         uint256 tokenId
     ) internal {
         // TODO: require from address is the owner of the given token
-        require(from == ownerOf(tokenId), "from address must be the owner of the token");
+        require(
+            from == ownerOf(tokenId),
+            "from address must be the owner of the token"
+        );
 
         // TODO: require token is being transfered to valid address
         require(to != address(0x0), "The address is not valid");
@@ -610,7 +636,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     // TIP #2: you can also use uint2str() to convert a uint to a string
     // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
     // require the token exists before setting
-    function setTokenURI(uint256 tokenId) external {
+    function setTokenURI(uint256 tokenId) public {
         require(_exists(tokenId));
 
         _tokenURIs[tokenId] = strConcat(_baseTokenURI, uint2str(tokenId));
@@ -633,12 +659,12 @@ contract RealEstatePropertyToken is
     )
 {
     function mint(address to, uint256 tokenId)
-        external
+        public
         onlyOwner
         returns (bool)
     {
-        super._mint(to, tokenId);
-        this.setTokenURI(tokenId);
+        _mint(to, tokenId);
+        setTokenURI(tokenId);
         return true;
     }
 }

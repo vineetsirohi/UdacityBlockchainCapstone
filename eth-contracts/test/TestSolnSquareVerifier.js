@@ -18,13 +18,13 @@ contract('SolnSquareVerifier Tests', async (accounts) => {
     describe('SolnSquareVerifier', function () {
 
         beforeEach(async function () {
-            let verifier = await Verifier.new({from: account_one});
-            this.contract = await SolnSquareVerifier.new(verifier.address, {from: account_one});
+            let verifier = await Verifier.new({ from: account_one });
+            this.contract = await SolnSquareVerifier.new(verifier.address, { from: account_one });
         })
 
         // Test if a new solution can be added for contract - SolnSquareVerifier
         it("can add a new sollution to the SolnSquareVerifier", async function () {
-            
+
             let result = await this.contract.addSolution(9001, accounts[9]);
 
             await expectEvent(result, "SolutionAdded", {
@@ -35,12 +35,14 @@ contract('SolnSquareVerifier Tests', async (accounts) => {
 
         // Test if an ERC721 token can be minted for contract - SolnSquareVerifier
         it("can mint an ERC721 token for SolnSquareVerifier", async function () {
-            let owner = await this.contract.getOwner();
-            console.log("Accounts[0]: " + account_one + ", owner: " + owner);
+            await expectRevert(
+                this.contract.mintNFTAfterVerification(accounts[9], proof, inputs, { from: account_two }),
+                "Caller should be the owner of this contract"
+            );
 
-            let result = await this.contract.verfirySolutionAndMintNFT(account_two, proof, inputs, {from: account_one});
+            let result = await this.contract.mintNFTAfterVerification(accounts[9], proof, inputs, {from: account_one});
+            assert.equal(result, true, "Should be able to mint token");
 
-            assert.equal(result, true, "Should be able to mint token")
         })
     })
 })
