@@ -11,22 +11,23 @@ Knowledge of Solidity smart contract developement language, truffle framework, g
 * Run `npm install` inside the repository.
 * `truffle develop`- start truffle local blockchain
 * `test` - run tests
-![compile](images/tests.png)
+![tests](images/tests.png)
 
 * `migrate --network rinkeby --reset` - migrate the project to rinkeby chain
 
-![compile](images/rinkeby_deployment.png)
+![transaction_hash](images/transaction_hash.png)
+![transaction_hash](images/transaction_hash2.png)
 
 ## Zokrates
 * Run the commands shown in the below pic to generate proof.json and verifier.sol files. As each token is unique it will require its own proof.json file. 
-![compile](images/zocrates.png)
+![zocrates](images/zocrates.png)
 
 ## Dapp
 * cd into app folder
 * run `npm run dev` - start dapp on localhost
 * remember to update the path of proof.json file in index.js file
-![compile](images/proof_path.png)
-![compile](images/dapp.png)
+![proof](images/proof_path.png)
+![dapp](images/dapp.png)
 
 # Contract 
 * Contract address - 0x9df1d8aa93914e19c67b59893fdc2eea5973936f
@@ -784,6 +785,9 @@ Knowledge of Solidity smart contract developement language, truffle framework, g
 
 # OpenSea market place
 * [Storefront link](https://testnets.opensea.io/collection/realestatepropertytoken-v2)
+* Property transactions 
+![transactions](images/property_transaction.png)
+![transactions](images/property_transaction2.png)
 
 # Project Resources
 
