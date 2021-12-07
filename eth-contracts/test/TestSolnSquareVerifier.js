@@ -36,11 +36,11 @@ contract('SolnSquareVerifier Tests', async (accounts) => {
         // Test if an ERC721 token can be minted for contract - SolnSquareVerifier
         it("can mint an ERC721 token for SolnSquareVerifier", async function () {
             await expectRevert(
-                this.contract.mintNFTAfterVerification(accounts[9], proof, inputs, { from: account_two }),
+                this.contract.mintNFTAfterVerification(1, accounts[9], proof, inputs, { from: account_two }),
                 "Caller should be the owner of this contract"
             );
 
-            let result = await (await this.contract.mintNFTAfterVerification(accounts[9], proof, inputs, {from: account_one}));
+            let result = await (await this.contract.mintNFTAfterVerification(1, accounts[9], proof, inputs, {from: account_one}));
             await expectEvent(result, "Transfer", {
                 from: "0x0000000000000000000000000000000000000000",
                 to: accounts[9],

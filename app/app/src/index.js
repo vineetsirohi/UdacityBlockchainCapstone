@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import solnSquareVerifierArtifact from "../../../eth-contracts/build/contracts/SolnSquareVerifier.json";
-const { proof, inputs } = require('../../../zokrates/code/square/proof')
+const { proof, inputs } = require('../../../zokrates/code/square/proof.json')
 
 const App = {
   web3: null,
@@ -38,11 +38,16 @@ const App = {
 
     const index = document.getElementById("index").value;
     const address = document.getElementById("address").value;
-    await addSolution(index, address).send({ from: this.account });
+
+    try {
+      await addSolution(index, address).send({ from: this.account });
+    } catch (e) {
+      console.log("SolutionAdded error: " + e);
+    }
 
     this.meta.events.SolutionAdded(function (error, result) {
       if (!error) {
-        this.status.innerHTML = result;
+        this.status.innerHTML = JSON.stringify(result);
         console.log('SolutionAdded ' + JSON.stringify(result));
 
       } else {
@@ -52,21 +57,27 @@ const App = {
   },
 
   mint2: async function () {
+    const index = document.getElementById("token-index").value;
     const mintAccount = document.getElementById("mint-address").value;
-    
+
     this.setStatus.innerHTML = "Initiating minting... (please wait)";
 
     const { mintNFTAfterVerification } = this.meta.methods;
-    await mintNFTAfterVerification(mintAccount, proof, inputs).send({ from: this.account });
+
+    try {
+      await mintNFTAfterVerification(index, mintAccount, proof, inputs).send({ from: this.account });
+    } catch (e) {
+      console.log("Minting error: " + e);
+    }
 
     this.meta.events.Transfer(function (error, result) {
       if (!error) {
         const status = document.getElementById("status");
-        status.innerHTML = result;
-        console.log('Transfer ' + JSON.stringify(result));
+        status.innerHTML = JSON.stringify(result);
+        console.log('Minting ' + JSON.stringify(result));
 
       } else {
-        console.log('Transfer ' + error);
+        console.log('Minting ' + error);
       }
     });
   },

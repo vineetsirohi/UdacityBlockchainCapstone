@@ -38,14 +38,14 @@ contract SolnSquareVerifier is RealEstatePropertyToken {
     // TODO Create a function to mint new NFT only after the solution has been verified
     //  - make sure the solution is unique (has not been used before)
     //  - make sure you handle metadata as well as tokenSuplly
-    function mintNFTAfterVerification(address to, Verifier.Proof calldata proof, uint256[2] calldata input) external returns(bool){
+    function mintNFTAfterVerification(uint256 index, address to, Verifier.Proof calldata proof, uint256[2] calldata input) external returns(bool){
         require(verifier.verifyTx(proof, input), "Solution is not verified");
 
         bytes32 key = keccak256(abi.encodePacked(proof.a.X, proof.a.Y, proof.b.X, proof.b.Y, proof.c.X, proof.c.Y, input));
         require(uniqueSols[key] == address(0), "Solution already used");
 
         uniqueSols[key] = to;
-        addSolution(solutions.length, to);
-        return mint(to, solutions.length);
+        addSolution(index, to);
+        return mint(to, index);
     }
 }
