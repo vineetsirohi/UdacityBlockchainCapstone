@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import solnSquareVerifierArtifact from "../../../eth-contracts/build/contracts/SolnSquareVerifier.json";
-const { proof, inputs } = require('../../../zokrates/code/square/proof.json')
+const { proof, inputs } = require('../../../zokrates/code/proof5.json')
 
 const App = {
   web3: null,

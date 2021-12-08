@@ -785,9 +785,11 @@ Knowledge of Solidity smart contract developement language, truffle framework, g
 
 # OpenSea market place
 * [Storefront link](https://testnets.opensea.io/collection/realestatepropertytoken-v2)
+![opensea](images/opensea_storefront.png)
 * Property transactions 
 ![transactions](images/property_transaction.png)
 ![transactions](images/property_transaction2.png)
+![transactions](images/property_transaction3.png)
 
 # Project Resources
 
